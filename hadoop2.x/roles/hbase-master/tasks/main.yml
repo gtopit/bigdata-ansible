@@ -5,4 +5,5 @@
 
 - name: 启动hbase
   shell: |
+    {{ hbase_dir.stdout }}/bin/hbase-daemon.sh start master
     {{ hbase_dir.stdout }}/bin/start-hbase.sh
