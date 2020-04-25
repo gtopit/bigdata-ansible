@@ -30,3 +30,4 @@
 1、在解压后的顶级目录（即hadoop-ansible目录）执行*ansible para -i hosts -m authorized_key -a "user=root key='{{ lookup('file','~/.ssh/id_rsa.pub') }}'"* 命令，实现免密登录。  
 2、继续执行*ansible-playbook -i hosts deply-all.yml* 命令，等待其执行完成，即安装成功。  
 3、如果执行过程中出现错误，可以不用再执行已成功部署的部分，可以使用如*ansible-playbook -i hosts -t namenode deply-all.yml* 的命令指定需要安装的步骤。所有的步骤信息在deply-all.yml 的tasks.tags 属性下。  
+4、若hbase集群master节点未能正常启动，请手动执行一次${hbase_dir}/bin/start-hbase.sh  
