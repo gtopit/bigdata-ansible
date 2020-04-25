@@ -2,5 +2,5 @@
 {% for host in groups['hdp'] %}
 spawn ssh root@{{ hostvars[host].hdp_hostname }}
 expect "(yes/no)" { send "yes\r" }
-exit
+interact
 {% endfor %}
