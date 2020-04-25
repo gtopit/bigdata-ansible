@@ -1,9 +1,6 @@
 - name: 生成一个临时空文件，用于远程拷贝
   file: path={{ tmp_dir }}/a.tmp state=touch
 
-- name: 安装expect
-  yum: name=expect state=present
-
 - name: 生成脚本
   template: src={{ item }} dest={{ tmp_dir }}/{{ item.split('.')[:-1]|join('.') }}
   loop:

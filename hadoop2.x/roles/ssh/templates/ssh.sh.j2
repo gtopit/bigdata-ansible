@@ -1,6 +1,4 @@
-#!/usr/bin/expect
+#!/bin/bash
 {% for host in groups['hdp'] %}
-spawn scp -r {{ tmp_dir }}/a.tmp root@{{ hostvars[host].hdp_hostname }}:/root
-expect "(yes/no)" { send "yes\r" }
-interact
+scp -o StrictHostKeyChecking=no -r {{ tmp_dir }}/a.tmp root@{{ hostvars[host].hdp_hostname }}:/root
 {% endfor %}
