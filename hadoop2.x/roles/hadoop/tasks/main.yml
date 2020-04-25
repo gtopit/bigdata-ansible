@@ -21,7 +21,7 @@
   loop:
     - core-site.xml.j2
     - hdfs-site.xml.j2
-    - workers.j2
+    - slaves.j2
 
 - name: 不需要改动的配置文件放入对应目录
   copy: src={{ item }} dest={{ hadoop_dir.stdout }}/etc/hadoop/{{ item }}
