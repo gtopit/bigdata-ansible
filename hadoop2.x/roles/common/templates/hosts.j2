@@ -1,0 +1,6 @@
+{% for host in groups['hdp'] %}
+{{ hostvars[host].inventory_hostname }} {{hostvars[host].hdp_hostname}}
+{% endfor %}
+{% for host in groups['zookeeper'] %}
+{{ hostvars[host].inventory_hostname }} {{hostvars[host].zk_hostname}}
+{% endfor %}

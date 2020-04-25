@@ -1,0 +1,25 @@
+# 临时目录
+tmp_dir: "/tmp/ansible"
+
+# 软件安装路径
+installed_dir: "/usr/local/installed"
+
+# 需要安装的软件压缩包所在路径（需要和软件安装路径不同）
+software_dir: "/usr/local/software"
+
+# 是否必须安装jdk，如果设置为True，则会安装jdk，
+# 否则会检查系统是否安装了jdk，如果已安装，则跳过安装，如果未安装，则进行安装
+need_install_jdk: "True"
+
+# zookeeper数据存放目录
+zookeeper_data_dir: "/usr/local/data/zookeeper"
+
+# zookeeper端口
+client_port: 2181
+
+# 指定Hadoop namenode数据存放位置
+dfs_namenode_name_dir: "/usr/local/data/hadoop/name"
+
+# 指定Hadoop datanode数据存放位置
+dfs_datanode_data_dir: "/usr/local/data/hadoop/data"
+

@@ -1,0 +1,43 @@
+- name: 查看安装目录是否已存在hadoop
+  shell: |
+    find {{ installed_dir }} -name hadoop-[0-9]*.[0-9]*.[0-9]* -type d
+  register: exist_hdp_dir
+
+- name: 如果存在则将其删除
+  file: path={{ exist_hdp_dir.stdout }} state=absent
+
+- name: 安装Hadoop
+  unarchive: src={{ item }} dest={{ installed_dir }}
+  with_fileglob:
+    - "{{ software_dir }}/hadoop-[0-9]*.tar.gz"
+
+- name: 查找Hadoop解压后的目录
+  shell: |
+    find {{ installed_dir }} -name hadoop-[0-9]*.[0-9]*.[0-9]* -type d
+  register: hadoop_dir
+
+- name: 生成hadoop配置文件并放入对应目录
+  template: src={{ item }} dest={{ hadoop_dir.stdout }}/etc/hadoop/{{ item.split('.')[:-1]|join('.') }}
+  loop:
+    - core-site.xml.j2
+    - hdfs-site.xml.j2
+    - workers.j2
+
+- name: 不需要改动的配置文件放入对应目录
+  copy: src={{ item }} dest={{ hadoop_dir.stdout }}/etc/hadoop/{{ item }}
+  loop:
+    - hadoop-env.sh
+    - yarn-env.sh
+
+- name: 查看/etc/profile文件中是否存在Hadoop环境变量
+  shell: |
+    grep -e "export HADOOP_HOME={{ hadoop_dir.stdout }}" /etc/profile
+  register: is_exist
+  ignore_errors: True
+
+- name: 将Hadoop添加到环境变量
+  shell: |
+    echo -e "export HADOOP_HOME={{ hadoop_dir.stdout }} \nexport PATH=\$PATH:\$HADOOP_HOME/bin:\$HADOOP_HOME/sbin \n" >> /etc/profile
+  when: is_exist.stdout == ""
+
+  

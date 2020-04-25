@@ -1,0 +1,3 @@
+{% for host in groups['hbase_regionservers'] %}
+{{ hostvars[host].hbase_hostname }}
+{% endfor %}

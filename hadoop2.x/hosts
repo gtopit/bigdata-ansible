@@ -1,0 +1,37 @@
+[para]
+192.168.233.4 ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=gtop@2020
+192.168.233.5 ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=gtop@2020
+192.168.233.6 ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=gtop@2020
+
+[zookeeper]
+192.168.233.4 zk_hostname=node1 zk_myid=1 zk_heartbeat_port=2888 zk_leader_port=3888
+192.168.233.5 zk_hostname=node2 zk_myid=2 zk_heartbeat_port=2888 zk_leader_port=3888
+192.168.233.6 zk_hostname=node3 zk_myid=3 zk_heartbeat_port=2888 zk_leader_port=3888
+
+[hdp_namenode]
+192.168.233.4 hdp_hostname=node1 hdp_namenode_port=9000 dfs_http_port=50070 dfs_secondary_http_port=50090
+
+[hdp_datanode]
+192.168.233.5 hdp_hostname=node2
+192.168.233.6 hdp_hostname=node3
+
+[hdp:children]
+hdp_namenode
+hdp_datanode
+
+[hdp_yarn]
+192.168.233.4 yarn_hostname=node1 yarn_admin_port=8033 yarn_resourcemanager_port=8032 yarn_tracker_port=8031 yarn_scheduler_port=8030 yarn_webapp_port=8088 mapred_jobhistory_port=10020 mapred_webapp_port=19888
+
+[hbase_master]
+192.168.233.4 hbase_hostname=node1
+
+[hbase_regionservers]
+192.168.233.5 hbase_hostname=node2
+192.168.233.6 hbase_hostname=node3
+
+[hbase_backup_master]
+192.168.233.5 hbase_hostname=node2
+
+[hbase:children]
+hbase_master
+hbase_regionservers

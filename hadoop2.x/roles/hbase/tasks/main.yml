@@ -1,0 +1,43 @@
+- name: 查看安装目录是否已存在hbase
+  shell: |
+    find {{ installed_dir }} -name hbase-[0-9]*.[0-9]*.[0-9]* -type d
+  register: exist_hbase_dir
+
+- name: 如果存在则删除
+  file: path={{ exist_hbase_dir }} state=absent
+
+- name: 解压hbase到指定目录
+  unarchive: src={{ item }} dest={{ installed_dir }}
+  with_fileglob:
+    - "{{ software_dir }}/hbase-[0-9]*.tar.gz"
+
+- name: 查找hbase解压后的目录
+  shell: |
+    find {{ installed_dir }} -name hbase-[0-9]*.[0-9]*.[0-9]* -type d
+  register: hbase_dir
+
+- name: 生成hbase配置文件并放入对应目录
+  template: src={{ item }} dest={{ hbase_dir.stdout }}/conf/{{ item.split('.')[:-1]|join('.') }}
+  loop:
+    - hbase-site.xml.j2
+    - regionservers.j2
+    - backup-masters.j2
+    - hostname.sh.j2
+
+- name: 不需要改动的配置文件放入对应目录
+  copy: src=hbase-env.sh dest={{ hbase_dir.stdout }}/conf/hbase-env.sh
+
+- name: 查看Hadoop安装目录
+  shell: |
+    find {{ installed_dir }} -name hadoop-[0-9]*.[0-9]*.[0-9]* -type d
+  register: hadoop_dir
+
+- name: 将Hadoop相关配置文件拷贝到hbase配置目录
+  copy: src={{ hadoop_dir.stdout }}/etc/hadoop/core-site.xml dest={{ hbase_dir.stdout }}/conf/core-site.xml
+
+- name: 将Hadoop相关配置文件拷贝到hbase配置目录
+  copy: src={{ hadoop_dir.stdout }}/etc/hadoop/hdfs-site.xml dest={{ hbase_dir.stdout }}/conf/hdfs-site.xml
+
+- name: 修改主机名
+  shell: |
+    chmod +x {{ hbase_dir.stdout }}/conf/hostname.sh && {{ hbase_dir.stdout }}/conf/hostname.sh

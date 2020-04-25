@@ -1,0 +1,67 @@
+- name: 查找Hadoop解压后的目录
+  shell: |
+    find {{ installed_dir }} -name hadoop-[0-9]*.[0-9]*.[0-9]* -type d
+  register: hadoop_dir
+
+- name: 删除数据目录
+  file: path={{ dfs_namenode_name_dir }} state=absent
+
+#- name: 安装expect（非首次执行）
+#  yum: name=expect state=present
+#  when: is_exist.stdout != ""
+
+#- name: 查找namenode数据目录
+#  shell: |
+#    find {{ dfs_namenode_name_dir }} -name current -type d
+#  register: is_exist
+
+
+#- name: 生成hdfs namenode节点格式化脚本（非首次执行）
+#  shell: |
+#    cat <<EOF > {{ tmp_dir }}/namenode-format.sh
+#    #!/usr/bin/expect
+#    spawn {{ hadoop_dir.stdout }}/bin/hdfs namenode -format
+#    expect "(Y or N)" { send "Y\r" }
+#    interact
+#    EOF
+#  when: is_exist.stdout != ""
+
+#- name: 增加可执行权限（非首次执行）
+#  file:
+#    path: "{{ tmp_dir }}/namenode-format.sh"
+#    owner: root
+#    group: root
+#    mode: '0755'
+#  when: is_exist.stdout != ""
+
+#- name: 在namenode节点格式化hdfs（非首次执行）
+#  shell: |
+#    {{ tmp_dir }}/namenode-format.sh
+#  when: is_exist.stdout != ""
+
+- name: 在namenode节点格式化hdfs
+  shell: |
+    {{ hadoop_dir.stdout }}/bin/hdfs namenode -format -force
+
+- name: 启动hdfs
+  shell: |
+    {{ hadoop_dir.stdout }}/sbin/start-dfs.sh
+
+- name: 获取hdfs状态信息
+  shell: |
+    sleep 1 && {{ hadoop_dir.stdout }}/bin/hdfs dfsadmin -report
+  register: hdfs_status
+
+- name: 查看hdfs状态信息
+  debug:
+    var=hdfs_status.stdout_lines
+
+- name: 查看hdfs是否处于安全模式
+  shell: |
+    sleep 1 && {{ hadoop_dir.stdout }}/bin/hdfs dfsadmin -safemode get
+  register: safemode_status
+
+- name: 查看hdfs是否处于安全模式
+  debug:
+    msg: "{{ safemode_status }}"
+    

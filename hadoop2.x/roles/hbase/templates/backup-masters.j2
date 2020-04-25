@@ -1,0 +1,2 @@
+{% set backup_master = groups['hbase_backup_master'][0] %}
+{{ hostvars[backup_master].hbase_hostname }}

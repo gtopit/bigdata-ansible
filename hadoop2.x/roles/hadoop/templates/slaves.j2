@@ -1,0 +1,3 @@
+{% for host in groups['hdp_datanode'] %}
+{{ hostvars[host].hdp_hostname }}
+{% endfor %}

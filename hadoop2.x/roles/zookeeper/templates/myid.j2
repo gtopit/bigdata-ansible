@@ -1,0 +1,4 @@
+{% set local_ip = inventory_hostname %}
+{% for host in groups['zookeeper'] %}
+{% if hostvars[host].inventory_hostname == local_ip %}{{ hostvars[host].zk_myid }}{% endif %}
+{% endfor %}

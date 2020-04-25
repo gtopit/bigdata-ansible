@@ -1,0 +1,4 @@
+{% set local_ip = inventory_hostname %}
+{% for host in groups['hbase'] %}
+{% if hostvars[host].inventory_hostname == local_ip %} hostname {{ hostvars[host].hbase_hostname }}{% endif %}
+{% endfor %}

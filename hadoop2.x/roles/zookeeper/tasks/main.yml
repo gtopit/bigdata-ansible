@@ -1,0 +1,77 @@
+- name: 查看zookeeper在安装目录是否已存在
+  shell: |
+    find {{ installed_dir }} -name *zookeeper-[0-9]*.[0-9]*.[0-9]* -type d
+  register: exist_zk_dir
+
+- name: 存在则将其删除
+  file: path={{ exist_zk_dir.stdout }} state=absent
+  when: exist_zk_dir.stdout != ""
+
+- name: 安装zookeeper到指定目录
+  unarchive: src={{ item }} dest={{ installed_dir }}
+  with_fileglob:
+    - "{{ software_dir }}/*zookeeper-*.tar.gz"
+
+- name: 查看zookeeper安装目录
+  shell: |
+    find {{ installed_dir }} -name *zookeeper-[0-9]*.[0-9]*.[0-9]*  -type d
+  register: zookeeper_dir
+
+- name: 查看/etc/profile文件中是否存在zookeeper环境变量
+  shell: |
+    grep -e "export ZOOKEEPER_HOME={{ zookeeper_dir.stdout }}" /etc/profile
+  register: is_exist
+  ignore_errors: True
+
+- name: 将zookeeper添加到环境变量
+  shell: |
+    echo -e "export ZOOKEEPER_HOME={{ zookeeper_dir.stdout }} \nexport PATH=\$PATH:\$ZOOKEEPER_HOME/bin \n" >> /etc/profile
+  when: is_exist.stdout == ""
+
+- name: 如果存在数据目录，则将其删除
+  file: path={{ zookeeper_data_dir }} state=absent
+
+- name: 生成zookeeper数据存放路径
+  file: path={{ zookeeper_data_dir }} state=directory mode='0755'
+
+- name: 生成zookeeper配置文件并放入conf目录
+  template: src={{ item }} dest={{ zookeeper_dir.stdout }}/conf/{{ item.split('.')[:-1]|join('.') }}
+  loop: 
+    - zoo.cfg.j2
+  
+- name: 配置myid
+  template: src=myid.j2 dest={{ zookeeper_data_dir }}/myid
+  
+- name: 配置centos service管理zookeeper脚本
+  template: src=zookeeper.j2 dest=/etc/rc.d/init.d/zookeeper
+  
+- name: 增加可执行权限
+  file:
+    path: /etc/rc.d/init.d/zookeeper
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: 若2181端口被占用，则先停止
+  shell: |
+    pid=$(netstat -ntlp | grep 2181 | awk '{print $7}')
+    pid=${pid/[^[0-9]*/''}
+    kill -9 $pid
+  ignore_errors: True
+
+- name: 启动zookeeper
+  shell: |
+    service zookeeper restart
+  ignore_errors: True
+
+- name: 添加开机启动项
+  shell: chkconfig --add zookeeper
+
+- name: 查看启动状态
+  shell: sleep 1 && service zookeeper status
+  register: zk_status
+
+- name: 查看zookeeper集群状态
+  debug: 
+    msg: "{{ zk_status.stdout_lines }}"
+

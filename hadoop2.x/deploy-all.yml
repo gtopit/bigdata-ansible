@@ -1,0 +1,64 @@
+---
+- hosts: all
+  gather_facts: False
+  tasks:
+  - import_role:
+      name: common
+    tags: 
+      - common
+
+- hosts: zookeeper
+  gather_facts: False
+  tasks:
+  - import_role:
+      name: jdk
+    tags: 
+      - jdk
+
+- hosts: zookeeper
+  gather_facts: False
+  tasks:
+  - import_role:
+      name: zookeeper
+    tags: 
+      - zk
+
+- hosts: hdp_namenode
+  gather_facts: False
+  tasks:
+  - import_role:
+      name: ssh
+    tags:
+      - ssh
+
+- hosts: hdp
+  gather_facts: False
+  tasks:
+  - import_role:
+      name: hadoop
+    tags:
+      - hdp
+    
+- hosts: hdp_namenode
+  gather_facts: False
+  tasks:
+  - import_role:
+      name: namenode
+    tags:
+      - namenode
+
+- hosts: hbase
+  gather_facts: False
+  tasks:
+  - import_role:
+      name: hbase
+    tags:
+      - hbase
+
+- hosts: hbase_master
+  gather_facts: False
+  tasks:
+  - import_role:
+      name: hbase-master
+    tags:
+      - hbase-master
