@@ -1,3 +1,6 @@
+- name: 生成一个临时空文件，用于远程拷贝
+  file: path={{ tmp_dir }}/a.tmp state=touch
+
 - name: 安装expect
   yum: name=expect state=present
 
@@ -13,7 +16,7 @@
     group: root
     mode: '0755'
 
-- name: 发送一次ssh命令以便后续无需再次出现选择提示导致进程阻塞
+- name: 发送一次scp命令以便后续无需再次出现选择提示导致进程阻塞
   shell: |
     {{ tmp_dir }}/ssh.sh
   ignore_errors: True

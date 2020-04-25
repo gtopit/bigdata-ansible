@@ -1,6 +1,6 @@
 #!/usr/bin/expect
 {% for host in groups['hdp'] %}
-spawn ssh root@{{ hostvars[host].hdp_hostname }}
+spawn scp -r {{ tmp_dir }}/a.tmp root@{{ hostvars[host].hdp_hostname }}:/root
 expect "(yes/no)" { send "yes\r" }
 interact
 {% endfor %}
